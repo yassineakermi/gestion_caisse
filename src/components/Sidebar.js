@@ -27,15 +27,6 @@ const Sidebar = () => {
                             {/* Add icons to the links using the .nav-icon class
          with font-awesome or any other icon font library */}
                             <li className="nav-item">
-                                <Link to="/" className="nav-link">
-                                <i class="nav-icon fas fa-chart-bar"></i>
-                                    <p>
-                                        Statistiques
-                                    </p>
-                                </Link>
-                            </li>
-
-                            <li className="nav-item">
                                 <Link to="/stock" className="nav-link">
                                 <i class="nav-icon fa-solid fa-boxes-stacked"></i>
                                     <p>

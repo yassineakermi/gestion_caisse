@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-const DataTable = ({ data, update = false, _delete = false }) => {
+const DataTable = ({ data, update = false, _delete = false, updateRow=null, deleteRow=null }) => {
 
   const parseHeader = (data = false) => {
     if (data && data instanceof Array && data.length > 0 && data[0] instanceof Object) {
@@ -10,6 +10,7 @@ const DataTable = ({ data, update = false, _delete = false }) => {
     else
       return [];
   }
+
 
   const [header, setHeader] = useState([])
   const [_data, setData] = useState([])
@@ -21,6 +22,9 @@ const DataTable = ({ data, update = false, _delete = false }) => {
     document.body.appendChild(script);
     setHeader(parseHeader(data));
     setData(data);
+    return ()=>{
+      document.body.removeChild(script)
+    }
   }, [])
 
   const actionIconsStyle = {
@@ -46,14 +50,13 @@ const DataTable = ({ data, update = false, _delete = false }) => {
               {
                 _data.map((el, index) => {
                   return <tr key={index}>
-                    <td>{el.nom}</td>
-                    <td>{el.prix}</td>
-                    <td>{el.category}</td>
-                    <td>{el.quantite}</td>
+                    {
+                      Object.entries(el).map( pair=><td>{pair[1]}</td>)
+                    }
                     {(_delete || update) &&
                       <td style={{ textAlign: "center" }}>
-                        {update && <i style={{ ...actionIconsStyle, color: "#ffc107" }} className='fa fa-pen-to-square'></i>}
-                        {_delete && <i style={{ ...actionIconsStyle, color: "#dc3545" }} className='fa fa-circle-minus'></i>}
+                        {update && <i onClick={(e)=>updateRow ? updateRow(e,el):undefined} style={{ ...actionIconsStyle,cursor:"pointer", color: "#ffc107" }} className='fa fa-pen-to-square'></i>}
+                        {_delete && <i onClick={(e)=>deleteRow ? deleteRow(el.id) : undefined} style={{ ...actionIconsStyle,cursor:"pointer", color: "#dc3545" }} className='fa fa-circle-minus'></i>}
 
                       </td>
                     }

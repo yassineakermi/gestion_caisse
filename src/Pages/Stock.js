@@ -1,168 +1,126 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import ContentHeader from '../components/ContentHeader';
 import DataTable from '../components/DataTable';
 import SimpleInputField from '../components/SimpleInputField';
+import SelectInput from '../components/SelectInput';
+import ProductContext from "../context/ProductContext"
+import CategoryContext from "../context/CategoryContext"
+import PromotionContext from '../context/PromotionContext'
 const Stock = () => {
 
-  useEffect(_ => {
-    const script = document.createElement("script");
-    script.src = 'dist/js/select.js';
-    script.async = true;
-    console.log(script)
-    document.body.appendChild(script);
-  }, [])
+  const {
+    products,
+    isLoading,
+    deleteProductContext,
+    addProduct,
+    updateProductContext,
+    fetchProducts,
+   } = useContext(ProductContext)
 
-
-  const [data, setData] = useState([
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
-    },
-    {
-      nom: "Lait 1L",
-      prix: 1.35,
-      category: "Laiter",
-      quantite: 123
-    },
-    {
-      nom: "Couscous 1KG",
-      prix: 0.85,
-      category: "Ajin",
-      quantite: 500
-
+   const {categories} = useContext(CategoryContext)
+   const {promotions} = useContext(PromotionContext)
+  const CategoryOptions = categories.map(
+    cat=>{
+      return {
+        value: cat.id, display: cat.name
+      }
     }
-  ])
+  )
+  
 
-  const [nom,setNom] = useState("");
-  const [prix,setPrix] = useState(0);
-  const [category,setCategory] = useState("");
-  const [quantite,setQuantite] = useState(0);
+  const promotionsOptions = promotions.map(
+    cat=>{
+      return {
+        value: cat.id, display: cat.value
+      }
+    }
+  )
 
+
+  const [nom, setNom] = useState("");
+  const [prix, setPrix] = useState(0);
+  const [category, setCategory] = useState("");
+  const [quantite, setQuantite] = useState(0);
+  const [promotion, setPromotion] = useState("")
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [toDeleteProductID, setToDeleteProductID] = useState(null)
+  const handleChangeInput = (event, value) => {
+    if (event.target.id === "nom")
+      setNom(value)
+    else if (event.target.id === "prix")
+      setPrix(value)
+    else if (event.target.id === "qty")
+      setQuantite(value)
+    else if (event.target.id === "category")
+      setCategory(value)
+    else if (event.target.id === "promotion")
+      setPromotion(value)
+
+
+  }
+
+  const updateProduct = (event, product) => {
+    setNom(product.nom)
+    setPrix(product.prix)
+    setCategory(product.category)
+    setQuantite(product.quantite)
+    setShowAddModal(true);
+  }
+
+  const closeModal = (event) => {
+    setNom("")
+    setPrix(0)
+    setCategory("")
+    setQuantite(0)
+    setShowAddModal(false);
+  }
+
+  const deleteProduct = (id) => {
+    console.log(id)
+    deleteProductContext(id)
+    setShowDeleteModal(true)
+  }
 
   return (
     <div className="content-wrapper">
       <ContentHeader>Gestion de Stock</ContentHeader>
       <section className="content">
-        <div className="modal fade" id="modal-default">
+        <div className={`modal fade ${showDeleteModal ? "show" : ""}`} style={showDeleteModal ? { display: "block", paddingRight: "15px" } : { display: "none" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h4 className="modal-title">Confirmer la supprission</h4>
+                <button type="button" className="close " data-dismiss="modal" aria-label="Close">
+                  <span onClick={e => setShowDeleteModal(false)} aria-hidden="true">×</span>
+                </button>
+              </div>
+              <div className="modal-body" style={{ display: "flex", justifyContent: "space-evenly" }}>
+                <button type="button" style={{ width: "40%" }} className="btn btn-block btn-default" data-dismiss="modal" onClick={e => setShowDeleteModal(false)}>Annuler</button>
+                <button type="button" style={{ width: "40%" }} className="btn btn-block btn-danger">supprimer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={`modal fade ${showAddModal ? "show" : ""}`} style={showAddModal ? { display: "block", paddingRight: "15px" } : { display: "none" }} id="modal-default">
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
                 <h4 className="modal-title">Ajouter Un Produit</h4>
                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">×</span>
+                  <span onClick={closeModal} aria-hidden="true">×</span>
                 </button>
               </div>
               <div className="modal-body">
-              <SimpleInputField id="nom" label="Nom de produit:"  placeholder="Nom de produit" type='text' />
-              <SimpleInputField id="prix" label="Prix de produit:"  placeholder="Prix de produit" type='number' step={0.001} />
-              <SimpleInputField id="qty" label="Quantite disponible:"  placeholder="Quantite" type='number' />
-              <div className="form-group">
-                <label>User Id</label>
-                <select
-                  className="select2"
-                  id="sel"
-                  data-placeholder="Select a State"
-                  style={{ width: "100%" }}
-                >
-                  <option>Alabama</option>
-                  <option>Alaska</option>
-                  <option>California</option>
-                  <option>Delaware</option>
-                  <option>Tennessee</option>
-                  <option>Texas</option>
-                  <option>Washington</option>
-                </select>
+                <SimpleInputField id="nom" setParentState={handleChangeInput} label="Nom de produit:" placeholder="Nom de produit" type='text' value={nom} />
+                <SimpleInputField id="prix" setParentState={handleChangeInput} label="Prix de produit:" placeholder="Prix de produit" type='number' value={prix} step={0.001} />
+                <SimpleInputField id="qty" setParentState={handleChangeInput} label="Quantite disponible:" placeholder="Quantite" type='number' value={quantite} />
+                <SelectInput data={CategoryOptions} setParentState={handleChangeInput} id="category" label="Choisir une categorie" placeholder='choisir une categorie' value={category} />
+                <SelectInput data={promotionsOptions} setParentState={handleChangeInput} id="promotion" label="Choisir une promotion" placeholder='choisir une promotion' value={category} isRequired={false} />
               </div>
-              </div>
+
               <div className="modal-footer justify-content-between">
-                <button type="button" className="btn btn-default" data-dismiss="modal">Annuler</button>
+                <button type="button" onClick={closeModal} className="btn btn-default" data-dismiss="modal">Annuler</button>
                 <button type="button" className="btn btn-primary">Enregistrer</button>
               </div>
             </div>
@@ -180,7 +138,17 @@ const Stock = () => {
                 </div>
                 <div className="card-body">
                   {
-                    (data instanceof Array && data.length > 0) ? <DataTable data={data} update={true} _delete={true} /> : "pas des produits"
+                    (products instanceof Array && products.length > 0) ? <DataTable deleteRow={deleteProduct} updateRow={updateProduct} data={
+                      products.map(prod=>{
+                        return {
+                          id:prod.id,
+                          nom:prod.name,
+                          prix:prod.prix,
+                          category:prod.category.name,
+                          quantite:prod.quantiteStock
+                        }
+                      })
+                    } update={true} _delete={true} /> : "pas des produits"
                   }
 
                 </div>

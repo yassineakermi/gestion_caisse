@@ -3,10 +3,19 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { CategoryProvider } from "./context/CategoryContext"
+import { ProductProvider } from "./context/ProductContext"
+import { PromotionProvider } from "./context/PromotionContext"
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <App />
+    <ProductProvider>
+        <CategoryProvider>
+            <PromotionProvider>
+                <App />
+            </PromotionProvider>
+        </CategoryProvider>
+    </ProductProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
